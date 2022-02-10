@@ -3,8 +3,9 @@
 #include <string>
 #include <regex>
 
+
 using namespace std;
-string getPath(string svg);
+string * getPath(string svg);
 int main() {
     string filename = "name.svg";
     string svg;
@@ -25,22 +26,39 @@ int main() {
     }
     file.close();
 
-    string paths = getPath(svg);
-    cout << paths << endl;
+    string *paths = getPath(svg);
+
+    ofstream outfile;
+
+    outfile.open("test.txt", ios::out);
+    if(outfile.is_open()){
+        outfile << "[" << endl;
+        for(int i = 0; i < 13; i++){
+            outfile << "\"";
+            outfile << paths[i];
+            outfile << "\"";
+            outfile << "," << endl;
+        }
+        outfile << "]" << endl;
+        outfile.close();
+    }
+    cout << sizeof(&paths);
     return 0;
 }
 
-string getPath(string svg){
-    regex reg("(d=)");
+string* getPath(string svg){
+    regex reg("d=\"(.*?)\"");
 
     smatch matches;
-    string paths;
+    static string paths[20];
 
+//    static string test[3] {"hello", "what", "why"};
+    int counter = 0;
     while(regex_search(svg, matches, reg)){
-//        cout << "inside the while loop" << endl;
-//        paths += matches.str(1);
-        cout << matches.str(1) << endl;
+
+        paths[counter] = matches.str(1);
         svg = matches.suffix().str();
+        counter ++;
     }
     return paths;
 }
